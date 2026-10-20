@@ -192,7 +192,7 @@
 	light_threshold += (sneak_skill_level / 200)
 
 	if(rogue_sneaking) //If sneaking, check if they should be revealed
-		if((stat > SOFT_CRIT) || IsSleeping() || !MOBTIMER_FINISHED(src, MT_FOUNDSNEAK, 30 SECONDS) || !T || reset || (m_intent != MOVE_INTENT_SNEAK) || light_amount >= light_threshold)
+		if((stat > SOFT_CRIT) || IsSleeping() || SNEAK_FOUND_LOCKED(src) || !T || reset || (m_intent != MOVE_INTENT_SNEAK) || light_amount >= light_threshold)
 			used_time /= 2
 			used_time += (sneak_skill_level * 2.5) //sneak skill makes you reveal slower but not as drastic as disappearing speed
 			animate(src, alpha = initial(alpha), time =	used_time, flags = ANIMATION_PARALLEL)
@@ -201,9 +201,22 @@
 			return
 
 	else //not currently sneaking, check if we can sneak
-		if(light_amount < light_threshold && m_intent == MOVE_INTENT_SNEAK)
+		if(light_amount < light_threshold && m_intent == MOVE_INTENT_SNEAK && !SNEAK_FOUND_LOCKED(src))
 			used_time = max(used_time - (sneak_skill_level * 5), 0)
 			animate(src, alpha = 0, time = used_time, flags = ANIMATION_PARALLEL)
 			spawn(used_time + 5) regenerate_icons()
 			rogue_sneaking = TRUE
 	return
+
+/// Marks this mob as spotted. Starts the sneak lockout and tells them when it ends
+/mob/living/proc/set_sneak_found()
+	MOBTIMER_SET(src, MT_FOUNDSNEAK)
+	// Spotted again before the lockout ends? The countdown for the message restarts too
+	addtimer(CALLBACK(src, PROC_REF(sneak_lockout_ended)), SNEAK_FOUND_LOCKOUT, TIMER_UNIQUE|TIMER_OVERRIDE)
+
+/mob/living/proc/sneak_lockout_ended()
+	if(QDELETED(src) || stat == DEAD)
+		return
+	if(SNEAK_FOUND_LOCKED(src)) // spotted again after this timer was queued, so still locked out
+		return
+	to_chat(src, span_green("I can sneak again..."))

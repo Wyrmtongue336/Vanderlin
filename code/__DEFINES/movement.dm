@@ -47,6 +47,10 @@ GLOBAL_VAR_INIT(glide_size_multiplier, 1.0)
 #define MOVED_BY_MOVEMENT_LOOP (1<<6)
 
 #define DEFAULT_MOB_SNEAK_TIME 5 SECONDS
+/// How long a mob that has been spotted (MT_FOUNDSNEAK) is locked out of sneaking again
+#define SNEAK_FOUND_LOCKOUT (30 SECONDS)
+/// TRUE while a mob is still within its post-spotted lockout, prevents hiding.
+#define SNEAK_FOUND_LOCKED(target) (MOBTIMER_EXISTS(target, MT_FOUNDSNEAK) && !MOBTIMER_FINISHED(target, MT_FOUNDSNEAK, SNEAK_FOUND_LOCKOUT))
 
 /**
  * Returns a bitfield containing flags both present in `flags` arg and the `processing_move_loop_flags` move_packet variable.

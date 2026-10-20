@@ -2636,7 +2636,7 @@
 				if(M.m_intent == MOVE_INTENT_SNEAK)
 					emote("huh")
 					to_chat(M, "<span class='danger'>[src] sees me! I'm found!</span>")
-					MOBTIMER_SET(M, MT_FOUNDSNEAK)
+					M.set_sneak_found()
 			else
 				if(M.m_intent == MOVE_INTENT_SNEAK)
 					if(M.client?.prefs.read_preference(/datum/preference/toggle/showrolls))

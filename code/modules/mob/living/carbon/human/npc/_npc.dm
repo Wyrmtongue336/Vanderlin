@@ -150,7 +150,7 @@
 
 	if (prob(probby))
 		// whoops it saw us
-		MOBTIMER_SET(target, MT_FOUNDSNEAK)
+		target.set_sneak_found()
 		to_chat(target, span_danger("[src] sees me! I'm found!"))
 		target.update_sneak_invis(TRUE)
 		return TRUE
